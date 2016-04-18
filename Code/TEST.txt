@@ -1,7 +1,0 @@
-﻿<<<<<<< HEAD
-Testar att skriva en kod. Mångar rader...
-
-EMIL skriver DETTA!
-=======
-
->>>>>>> origin/master
