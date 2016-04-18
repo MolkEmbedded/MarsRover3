@@ -1,3 +1,12 @@
+<<<<<<< HEAD
 Testar att skriva en kod. Mångar rader...
 
 EMIL skriver DETTA!
+=======
+﻿Testar att skriva en kod. Mångar rader...
+
+
+
+
+hejsan hejsna hejsan
+>>>>>>> origin/master
