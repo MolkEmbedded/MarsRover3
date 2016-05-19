@@ -1,6 +1,7 @@
-#include <Wire.h>
-#include <LCD.h>
 #include <LiquidCrystal_I2C.h>
+
+#include <Wire.h>
+//#include <LCD.h>
 
 //LCD I2C Pinout
 #define I2C_ADDR    0x27 // I2C Scanner
@@ -37,7 +38,7 @@ float cookSize = 0.00;
 float steakFactor = 0.00;
 float doneness = 0.00;
 
-LiquidCrystal_I2C  lcd(I2C_ADDR, En_pin, Rw_pin, Rs_pin, D4_pin, D5_pin, D6_pin, D7_pin);
+LiquidCrystal_I2C  lcd(0x27, 16, 2);
 
 //Functions
 void startSequence();
@@ -54,8 +55,7 @@ void setup()
 {
   //LCD Setup
   lcd.begin (16, 2);
-  lcd.setBacklightPin(BACKLIGHT_PIN, POSITIVE);
-  lcd.setBacklight(HIGH);
+  lcd.backlight();
   lcd.home ();
 
   //Pinmodes
