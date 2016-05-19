@@ -1,5 +1,5 @@
 
 
-void TWI_init_slave(void);
-void TWI_write_slave(void);
-void data_Function(unsigned char);
+void TWI_InitSlave(void);
+void pwmInit();
+void dataFunction(unsigned char);
