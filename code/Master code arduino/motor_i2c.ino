@@ -1,7 +1,6 @@
 #define F_CPU 16000000UL
 #include <stdio.h>
 #include<avr/io.h>
-#include<util/delay.h>
 #include<inttypes.h>
 #include<avr/interrupt.h>
 #include <compat/twi.h>
@@ -9,13 +8,8 @@
 
 
 void TWI_start(void);
-void TWI_repeated_start(void);
 void TWI_init_master(void);
-void TWI_write_address(unsigned char);
-void TWI_read_address(unsigned char);
-void TWI_write_data(unsigned char);
-void TWI_read_data(void);
-void TWI_stop(void);
+
 ISR(TWI_vect);
 int IrFunction(void);
 
@@ -33,15 +27,11 @@ int val = 0;
 
   
  void setup(){
-  pinMode(13, OUTPUT);
+    pinMode(13, OUTPUT);
     irrecv.enableIRIn();
     Serial.begin(9600, SERIAL_8N1);
     TWI_init_master();
- }
- 
-  
-//int main(void)
-//{
+}
  
 void loop(){
   delay(200);
@@ -57,12 +47,6 @@ void loop(){
     TWI_start(); // Function to send start condition
    }
   }
-
-void TWI_init_master(void){ // Function to initialize master
-  TWBR = 0x0B;                                  // Set bit rate register. Defined in header file.
-  TWDR = 0xFF;                                      // Default content = SDA released.
-  TWCR = (1<<TWEN)|(1<<TWIE);   
-}
 
 int IrFunction(void){
 
@@ -106,6 +90,12 @@ ISR(TWI_vect){
     default:
       break;
   }
+}
+
+void TWI_init_master(void){ // Function to initialize master
+  TWBR = 0x0B;                                  // Set bit rate register. Defined in header file.
+  TWDR = 0xFF;                                      // Default content = SDA released.
+  TWCR = (1<<TWEN)|(1<<TWIE);   
 }
 
 void TWI_start(void){
