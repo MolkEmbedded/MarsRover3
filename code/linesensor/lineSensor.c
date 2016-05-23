@@ -23,7 +23,7 @@ uint16_t *lastValues;
 float pGain = 200;   //Proportional Gain
 float iGain =  0.2;  //Integral Gain
 float dGain =  120;  //Differential Gain
-unsigned char recv_data;
+
 int32_t eInteg = 0;  //Integral accumulator
 int32_t ePrev  =0;      //Previous Error
 
