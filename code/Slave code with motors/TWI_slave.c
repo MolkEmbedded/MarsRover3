@@ -19,45 +19,45 @@ void dataFunction(unsigned char data){
 	printf("DATA = %d\n", data);
 	switch (data){
 		case 1:
-			if(OCR0A < 216 && OCR2A < 216){
-				if (OCR0A == OCR2A){
-					OCR0A += 40;
-					OCR2A += 40;
+			if(Motor1F < 216 && Motor2F < 216){
+				if (Motor1F == Motor2F){
+					Motor1F += 40;
+					Motor2F += 40;
 			}
 				else {
-					OCR0A = 80;
-					OCR2A = 80;
+					Motor1F = 80;
+					Motor2F = 80;
 			}
 			printf("FRAMAT\n");
-			printf("%d\n%d\n", OCR0A, OCR2A);
+			printf("%d\n%d\n", Motor1F, Motor2F);
 		}	
 			break;	
 		case 2:
-			OCR0A = 0;
-			OCR2A = 0;
-			OCR0B += 40;
-			OCR2B += 40;
+			Motor1F = 0;
+			Motor2F = 0;
+			Motor1R += 40;
+			Motor2R += 40;
 			printf("BAKAT\n");
 			break;
 		case 3:
-			OCR0B = 0;
-			OCR2B = 0;
-			OCR0A = 80;
-			OCR2A = 0;
+			Motor1R = 0;
+			Motor2R = 0;
+			Motor1F = 80;
+			Motor2F = 0;
 			printf("HOGER\n");
 			break;
 		case 4:
-			OCR0B = 0;
-			OCR2B = 0;
-			OCR0A = 0;
-			OCR2A = 80;
+			Motor1R = 0;
+			Motor2R = 0;
+			Motor1F = 0;
+			Motor2F = 80;
 			printf("VANSTER\n");
 			break;
 		case 5:
-			OCR0A = 0;
-			OCR2A = 0;
-			OCR0B = 0;
-			OCR2B = 0;
+			Motor1F = 0;
+			Motor2F = 0;
+			Motor1R = 0;
+			Motor2R = 0;
 			printf("STOP\n");
 			break;
 		default:
