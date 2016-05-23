@@ -41,15 +41,15 @@
  * MAX_RESP_TIME : default: 300
  * DELAY_BETWEEN_TESTS : default: 50
  */
-#define TRIG_DDR    DDRC            // Trigger Port
-#define TRIG_PORT   PORTC
-#define TRIG_PIN    PINC
-#define TRIG_BIT    PC4             // Trigger Pin
+#define TRIG_DDR    DDRB            // Trigger Port
+#define TRIG_PORT   PORTB
+#define TRIG_PIN    PINB
+#define TRIG_BIT    PB0             // Trigger Pin
  
-#define ECHO_DDR    DDRC            // Echo Port
-#define ECHO_PORT   PORTC
-#define ECHO_PIN    PINC
-#define ECHO_BIT    PC5             // Echo Pin
+#define ECHO_DDR    DDRD            // Echo Port
+#define ECHO_PORT   PORTD
+#define ECHO_PIN    PIND
+#define ECHO_BIT    PD7             // Echo Pin
  
 // Speed of sound
 // Default: 343 meters per second in dry air at room temperature (~20C)
