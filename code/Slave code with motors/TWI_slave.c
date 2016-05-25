@@ -11,9 +11,44 @@
 void TWI_InitSlave(void){
 	// Fill slave address to TWAR
 	TWAR=0x40;
-	TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE)|(1<<TWINT);
+	TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE)|(1<<TWINT);	
 }
+void motorAuto(float l, float r){
 
+/*
+if (sensorValues[0] > 1200){
+	Motor1F = 100;
+	Motor2F = 130;
+}
+else if (sensorValues[1] > 1200){
+	Motor1F = 100;
+	Motor2F = 115;
+}
+else if (sensorValues[2] > 1200){
+	Motor1F = 100;
+	Motor2F = 100;
+}
+else if (sensorValues[3] > 1200){
+	Motor1F = 115;
+	Motor2F = 100;
+}
+else if (sensorValues[4] > 1200){
+	Motor1F = 130;
+	Motor2F = 100;
+}*/
+/*
+	Motor1F = 100;
+	Motor2F = 100;
+	Motor1F = 100 * (1 + (l + l));
+	Motor2F = 100 * (1 + (r + r));
+//	Motor1F = 80;
+//	Motor2F = 100;
+	Motor1R = 0;
+	Motor2R = 0;
+	_delay_ms(1000);
+	*/
+	printf("left = %d ,  right = %d\n",Motor2F, Motor1F);
+}
 void dataFunction(unsigned char data){
 
 	printf("DATA = %d\n", data);
@@ -67,9 +102,11 @@ void dataFunction(unsigned char data){
 
 void pwmInit(){
 
+	printf("PWM init");
+
 	/* Setting pin 5, 11, 12 and 17 to output on ATMEGA328P */
-	DDRD |= _BV(PORTD3)| _BV(PORTD5) | _BV(PORTD6);
-	DDRB |= _BV(PORTB3);
+	DDRD |= (1 << PORTD3)| (1 << PORTD5) | (1 << PORTD6);
+	DDRB |= (1 << PORTB3);
 
 
 	/* Waveform Generation Mode 3 - Fast PWM */
