@@ -4,12 +4,9 @@
  *  Created on: 19 maj 2016
  *      Author: marcus
  */
-#include "TWI_slave.h"
+
 #include "lineSensor.h"
 
-const uint8_t sensorPorts[NUM_SENSORS] = {IRPORT_1, IRPORT_2, IRPORT_3, IRPORT_4,/* IRPORT_5, IRPORT_6, IRPORT_7,*/ IRPORT_8};
-const char sensorRegister[NUM_SENSORS] = {IRREG_1, IRREG_2, IRREG_3, IRREG_4,/* IRREG_5, IRREG_6, IRREG_7,*/ IRREG_8};
-const int sensorWeight[NUM_SENSORS] = {-127, -64, 0, 64, 127};
 // functions
 /*
 void powerOnSensors();
@@ -30,35 +27,31 @@ float dGain =  120;  //Differential Gain
 int32_t eInteg = 0;  //Integral accumulator
 int32_t ePrev  =0;      //Previous Error
 
-
+const uint8_t sensorPorts[NUM_SENSORS] = {IRPORT_1, IRPORT_2, IRPORT_3, IRPORT_4, IRPORT_5, IRPORT_6, IRPORT_7, IRPORT_8};
+const char sensorRegister[NUM_SENSORS] = {IRREG_1, IRREG_2, IRREG_3, IRREG_4, IRREG_5, IRREG_6, IRREG_7, IRREG_8};
 
 void readLineSensors() {
 
-//	powerOnSensors();
+	powerOnSensors();
 	// variable for saving one reading from every sensor
-	uint16_t sensorValues[NUM_SENSORS] = {0,0,0,0,/*0,0,0,*/ 0};
+	uint16_t sensorValues[NUM_SENSORS] = {0,0,0,0,0,0,0, 0};
 	float avgSensors = 0.0;
-	printf("poweron\n");
-//	for( uint8_t i = 0; i < 50; i++){
+
+	for( uint8_t i = 0; i < 50; i++){
 		readSensor( sensorValues );
-		
-		
-	
-		
-		
-		// motorAuto(1.0, 1.0);
+
 		//Take current sensor reading
 		//return value is between 0 to 7
 		//When the line is towards right of center then value tends to 8
 		//When the line is towards left of center then value tends to 1
 		//When line is in the exact center the the value is 4.5
 		avgSensors = calculateWeight( sensorValues );
-		//setNewSpeed(getPID(sensorWeight[compare], 0));
+		setNewSpeed( avgSensors, getPID(avgSensors, 4.5));
 //		engineControl( avgSensors);
 
-		//_delay_ms(300);
-//	}
-//	powerOffSensors();
+		_delay_ms(300);
+	}
+	powerOffSensors();
 }
 
 
@@ -81,7 +74,7 @@ void readSensor( uint16_t sensorValues[] ) {
 	5. Measure the time for the voltage to decay by waiting for the I/O line to go low.
 	6. Turn off IR LEDs (optional).
 	*/
-	printf("readSensor\n");
+
 	// read values from every IRsensor
 	for( uint8_t sensorNr = 0; sensorNr < NUM_SENSORS; sensorNr ++){
 
@@ -91,15 +84,14 @@ void readSensor( uint16_t sensorValues[] ) {
 		// check which register the sensor is connected to
 		// and perform action...
 		switch( sensorRegister[sensorNr]){
-		//printf("Switch\n");
+
 		case 'D':
 
 			DDRD |= (OUT << sensorPorts[sensorNr]);		// set port as OUTPUT
-			PORTD |= (OUT << sensorPorts[sensorNr]);		// set port HIGH
-			_delay_us(10);								// let port be HIGH for 10 microseconds
+			PORTD |= (1 << sensorPorts[sensorNr]);		// set port HIGH
+			_delay_ms(10);								// let port be HIGH for 10 microseconds
 
-			DDRD &= ~(1 << PORTD2);		
-			//DDRD &= ~(OUT << sensorPorts[sensorNr]);		// set port as INPUT
+			DDRD &= (IN << sensorPorts[sensorNr]);		// set port as INPUT
 
 			// loop while INPUT is HIGH and count time
 			while(time < TIMEOUT && ( PIND & _BV(sensorPorts[sensorNr])) ){
@@ -109,11 +101,11 @@ void readSensor( uint16_t sensorValues[] ) {
 
 			break;
 
-		case 'H':
+		case 'B':
 			DDRB |= (OUT << sensorPorts[sensorNr]);		// set port as OUTPUT
 			PORTB |= (1 << sensorPorts[sensorNr]);		// set port HIGH
-			_delay_us(10);								// let port be HIGH for 10 microseconds
-			printf("portB\n");
+			_delay_ms(10);								// let port be HIGH for 10 microseconds
+
 			DDRB &= (IN << sensorPorts[sensorNr]);		// set port as INPUT
 
 			// loop while INPUT is HIGH and count time
@@ -127,7 +119,7 @@ void readSensor( uint16_t sensorValues[] ) {
 		case 'C':
 				DDRC |= (OUT << sensorPorts[sensorNr]);		// set port as OUTPUT
 				PORTC |= (1 << sensorPorts[sensorNr]);		// set port HIGH
-				_delay_us(10);								// let port be HIGH for 10 microseconds
+				_delay_ms(10);								// let port be HIGH for 10 microseconds
 
 				DDRC &= (IN << sensorPorts[sensorNr]);		// set port as INPUT
 
@@ -140,7 +132,7 @@ void readSensor( uint16_t sensorValues[] ) {
 			break;
 
 		} // end switch
-	//	printf("end switch\n");
+
 	// save past time for sensors to get LOW
 	sensorValues[sensorNr ] = time;
 	} // end for
@@ -161,14 +153,14 @@ float calculateWeight( uint16_t sensorValues[] ) {
 	long avgSensor = 0.0;
 	float tmpAllSensors = 0;
 	int sensorNr = 0;
-	
+
 	while(sensorNr < NUM_SENSORS){
 		compare = (sensorValues[sensorNr] > sensorValues[compare] ? sensorNr : compare);
 		printf("(%d) %d, ", sensorNr, sensorValues[sensorNr]);
 		sensorNr ++;
 	}
-	printf("compare = %d", compare);
-	
+
+
 
 	printf("\n");
 	// Calculate weight
@@ -179,10 +171,8 @@ float calculateWeight( uint16_t sensorValues[] ) {
 		tmpAllSensors += sensorValues[i];
 
 	}
-	printf("avg %d    tmp %d\n ", (int) avgSensor, (int) tmpAllSensors);
-	avgSensor = ( (tmpAllSensors > 0) ? (float) avgSensor / tmpAllSensors: 0xFF);
 
-	setNewSpeed(getPID(sensorWeight[compare], 0));
+	avgSensor = ( (tmpAllSensors > 0) ? (float) avgSensor / tmpAllSensors: 0xFF);
 
 	return avgSensor;
 
@@ -206,37 +196,54 @@ float getPID( float cur_position, float new_position) {
 
 }
 
-void setNewSpeed(float pid) {
-  //float changeLeft = 0, changeRight = 0;
+void setNewSpeed( float cur_position, float pid) {
+  float changeLeft = 0, changeRight = 0;
 
-  printf("PID = %d\n", (int) pid);
-  if(pid > LeftF)
-	pid = LeftF;
-  if(-pid > RightF)
-	pid = -RightF;
-printf("PID2 = %d \n", (int) pid);
-  
   if (pid > 0) {
     // Turn left
-  LeftF = LeftF - pid;
-  RightF = rightSpeed;
-  } else if (pid <= 0) {
+    changeLeft = (pid / 2);
+    changeRight = -(pid / 2);
+
+  }
+
+  if (pid <= 0) {
     // turn right
-	RightF = RightF + pid;
-	LeftF = leftSpeed;
-}
-  printf("Left = %d Right = %d\n", LeftF, RightF);
-  
- // changeRight = changeRight * 100;
- // changeLeft = changeLeft * 100;
- // printf("%d    %d\n",(int) changeLeft, (int)changeRight);
+    changeLeft = -(pid / 2);
+    changeRight = (pid / 2);
+  }
   //printf("%f ", cur_position);
   //printFloat("Left", changeLeft);
   //printFloat("Right", changeRight);
+  printf("\n");
 
   // printf("position: %f, Left (%f), Right (%f)\n", cur_position, changeLeft, changeRight);
 }
+/*
+ * turnOnLED
+ * @param uint8_t led
+ */
+void turnOnLED( uint8_t led) {
+	switch (led) {
 
+		case BLUE:
+			PORTD |= (1 << BLUE);
+			PORTD &= ~(1 << RED) & ~(1 << YELLOW);
+			break;
+
+		case RED:
+			PORTD |= (1 << RED);
+			PORTD &= ~(1 << BLUE) & ~(1 << YELLOW);
+			break;
+
+		case YELLOW:
+			PORTD |= (1 << YELLOW);
+			PORTD &= ~(1 << RED) & ~(1 << BLUE);
+			break;
+		default:
+			PORTC &= (0 << BLUE) & (0 << RED) & (0 << YELLOW);
+		}
+	_delay_ms(100);
+}
 
 /*
  * powerOnSensors

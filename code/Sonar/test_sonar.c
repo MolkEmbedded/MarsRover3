@@ -21,8 +21,8 @@
  *
  * Usage        :   Ultrasonic Sensor HC-SR04 module is tested with following configuration:
  *                  Board:  Draco - AVR development board
- *                  Pins:   Trigger Pin :   PD0
- *                          Echo Pin    :   PD1
+ *                  Pins:   Trigger Pin :   PB0
+ *                          Echo Pin    :   PD7
  *                          Crystal     :   16MHz External
  *                          Fuse Bits   :   l:EE, h:D9, E:07
  *                                  Microcontroller :   ATmega328P

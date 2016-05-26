@@ -11,70 +11,53 @@
 void TWI_InitSlave(void){
 	// Fill slave address to TWAR
 	TWAR=0x40;
-	TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE)|(1<<TWINT);	
+	TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE)|(1<<TWINT);
 }
-void motorAuto(float l, float r){
 
-
-
-
-/*
-	Motor1F = 100;
-	Motor2F = 100;
-	Motor1F = 100 * (1 + (l + l));
-	Motor2F = 100 * (1 + (r + r));
-//	Motor1F = 80;
-//	Motor2F = 100;
-	Motor1R = 0;
-	Motor2R = 0;
-	_delay_ms(1000);
-	*/
-	printf("left = %d ,  right = %d\n",Motor2F, Motor1F);
-}
 void dataFunction(unsigned char data){
 
 	printf("DATA = %d\n", data);
 	switch (data){
 		case 1:
-			if(Motor1F < 216 && Motor2F < 216){
-				if (Motor1F == Motor2F){
-					Motor1F += 40;
-					Motor2F += 40;
+			if(OCR0A < 216 && OCR2A < 216){
+				if (OCR0A == OCR2A){
+					OCR0A += 40;
+					OCR2A += 40;
 			}
 				else {
-					Motor1F = 80;
-					Motor2F = 80;
+					OCR0A = 80;
+					OCR2A = 80;
 			}
 			printf("FRAMAT\n");
-			printf("%d\n%d\n", Motor1F, Motor2F);
+			printf("%d\n%d\n", OCR0A, OCR2A);
 		}	
 			break;	
 		case 2:
-			Motor1F = 0;
-			Motor2F = 0;
-			Motor1R += 40;
-			Motor2R += 40;
+			OCR0A = 0;
+			OCR2A = 0;
+			OCR0B += 40;
+			OCR2B += 40;
 			printf("BAKAT\n");
 			break;
 		case 3:
-			Motor1R = 0;
-			Motor2R = 0;
-			Motor1F = 80;
-			Motor2F = 0;
+			OCR0B = 0;
+			OCR2B = 0;
+			OCR0A = 80;
+			OCR2A = 0;
 			printf("HOGER\n");
 			break;
 		case 4:
-			Motor1R = 0;
-			Motor2R = 0;
-			Motor1F = 0;
-			Motor2F = 80;
+			OCR0B = 0;
+			OCR2B = 0;
+			OCR0A = 0;
+			OCR2A = 80;
 			printf("VANSTER\n");
 			break;
 		case 5:
-			Motor1F = 0;
-			Motor2F = 0;
-			Motor1R = 0;
-			Motor2R = 0;
+			OCR0A = 0;
+			OCR2A = 0;
+			OCR0B = 0;
+			OCR2B = 0;
 			printf("STOP\n");
 			break;
 		default:
@@ -84,11 +67,9 @@ void dataFunction(unsigned char data){
 
 void pwmInit(){
 
-	printf("PWM init");
-
 	/* Setting pin 5, 11, 12 and 17 to output on ATMEGA328P */
-	DDRD |= (1 << PORTD3)| (1 << PORTD5) | (1 << PORTD6);
-	DDRB |= (1 << PORTB3);
+	DDRD |= _BV(PORTD3)| _BV(PORTD5) | _BV(PORTD6);
+	DDRB |= _BV(PORTB3);
 
 
 	/* Waveform Generation Mode 3 - Fast PWM */

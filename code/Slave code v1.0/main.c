@@ -5,74 +5,65 @@
  *      Author: marcus
  */
 
-
 #include "lineSensor.h"
 #include "uart.h"
 #include "TWI_slave.h"
-#include "sonar.h"
 
-int distance_in_cm = 0;
 
+
+// vars
 
 
 ISR(TWI_vect);
 unsigned char recv_data;
 
 
-
 int main() {
-	
-	pwmInit();
+
 	uart_init();
 	stdout = &uart_output;
 	stdin  = &uart_input;
 
-	_delay_ms(100);
+	//pwmInit();
 	TWI_InitSlave(); // Function to initialize slave
-	//sei();
+	sei();
 
-	printf("start1\n");
-	//powerOnSensors();
-	printf("start2\n");
+	printf("start\n");
+	powerOnSensors();
+
 	while(0){
 		printf("loop\n");
 		while (!(TWCR & (1<<TWINT)));
 	}
-	while(1){
-	printf("start3\n");
 	readLineSensors();
-	//motorAuto(0.1, 0.1);
-	/*
-		 distance_in_cm=read_sonar();
-		 if (distance_in_cm == TRIG_ERROR)
-		 {
-			 puts("Error!");
-			 _delay_ms(DELAY_BETWEEN_TESTS/2);
-			 puts("");
-			 _delay_ms(DELAY_BETWEEN_TESTS/2);
-			 
-		 }
-		 else if (distance_in_cm == ECHO_ERROR)
-		 {
-			 puts("Echo error!");
-			 _delay_ms(DELAY_BETWEEN_TESTS);
-			 puts("");
-		 }
-		 else
-		 {
+/*	// variable for saving one reading from every sensor
+	uint16_t sensorValues[NUM_SENSORS] = {0,0,0,0,0,0,0, 0};
+	float avgSensors = 0.0;
 
-			 printf("Distance(cm): %d",distance_in_cm);
+	for( uint8_t i = 0; i < 50; i++){
+	readSensor( sensorValues );
 
-			 _delay_ms(DELAY_BETWEEN_TESTS);
-			 puts("");
-		 } */
+		//Take current sensor reading
+		//return value is between 0 to 7
+		//When the line is towards right of center then value tends to 8
+		//When the line is towards left of center then value tends to 1
+		//When line is in the exact center the the value is 4.5
+	//	avgSensors = calculate( sensorValues );
+	//	setNewSpeed( avgSensors, getPID(avgSensors, 4.5));
+
+
+		_delay_ms(300);
 	}
 
+
+
+
+		powerOffSensors();
+
+*/
 	printf("end\n");
 	return 0;
 }
-
-
 
 /*
  * calculate
