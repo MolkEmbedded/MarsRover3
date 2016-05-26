@@ -15,27 +15,9 @@ void TWI_InitSlave(void){
 }
 void motorAuto(float l, float r){
 
-/*
-if (sensorValues[0] > 1200){
-	Motor1F = 100;
-	Motor2F = 130;
-}
-else if (sensorValues[1] > 1200){
-	Motor1F = 100;
-	Motor2F = 115;
-}
-else if (sensorValues[2] > 1200){
-	Motor1F = 100;
-	Motor2F = 100;
-}
-else if (sensorValues[3] > 1200){
-	Motor1F = 115;
-	Motor2F = 100;
-}
-else if (sensorValues[4] > 1200){
-	Motor1F = 130;
-	Motor2F = 100;
-}*/
+
+
+
 /*
 	Motor1F = 100;
 	Motor2F = 100;

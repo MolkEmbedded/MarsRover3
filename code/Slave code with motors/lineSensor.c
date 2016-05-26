@@ -4,12 +4,12 @@
  *  Created on: 19 maj 2016
  *      Author: marcus
  */
-
+#include "TWI_slave.h"
 #include "lineSensor.h"
 
 const uint8_t sensorPorts[NUM_SENSORS] = {IRPORT_1, IRPORT_2, IRPORT_3, IRPORT_4,/* IRPORT_5, IRPORT_6, IRPORT_7,*/ IRPORT_8};
 const char sensorRegister[NUM_SENSORS] = {IRREG_1, IRREG_2, IRREG_3, IRREG_4,/* IRREG_5, IRREG_6, IRREG_7,*/ IRREG_8};
-
+const int sensorWeight[NUM_SENSORS] = {-127, -64, 0, 64, 127};
 // functions
 /*
 void powerOnSensors();
@@ -41,42 +41,11 @@ void readLineSensors() {
 	printf("poweron\n");
 //	for( uint8_t i = 0; i < 50; i++){
 		readSensor( sensorValues );
-		OCR0A =160;
-		OCR2A = 160;
-		_delay_ms(2000);
-		OCR0A =255;
-		OCR2A = 160;
-		_delay_ms(2000);
-		OCR0A =160;
-		OCR2A = 255;
-		_delay_ms(2000);
-		//_delay_ms(1000);
-		/*
-		if (sensorValues[0] > 1000){
-			OCR0A = 180;
-			OCR2A = 130;
-		}
-		else if (sensorValues[1] > 1000){
-			OCR0A = 170;
-			OCR2A = 130;
-		}
-		else if (sensorValues[2] > 1000){
-			OCR0A =160;
-			OCR2A = 130;
-		}
-		else if (sensorValues[3] > 1000){
-			OCR0A = 160;
-			OCR2A = 140;
-		}
-		else if (sensorValues[4] > 1000){
-			OCR0A = 160;
-			OCR2A = 150;
-		}
-		else {
-			OCR0A = 0;
-			OCR2A = 0;
-		}
-		*/
+		
+		
+	
+		
+		
 		// motorAuto(1.0, 1.0);
 		//Take current sensor reading
 		//return value is between 0 to 7
@@ -84,7 +53,7 @@ void readLineSensors() {
 		//When the line is towards left of center then value tends to 1
 		//When line is in the exact center the the value is 4.5
 		avgSensors = calculateWeight( sensorValues );
-	//	setNewSpeed(getPID(avgSensors, 2.5));
+		//setNewSpeed(getPID(sensorWeight[compare], 0));
 //		engineControl( avgSensors);
 
 		//_delay_ms(300);
@@ -127,7 +96,7 @@ void readSensor( uint16_t sensorValues[] ) {
 
 			DDRD |= (OUT << sensorPorts[sensorNr]);		// set port as OUTPUT
 			PORTD |= (OUT << sensorPorts[sensorNr]);		// set port HIGH
-			_delay_ms(10);								// let port be HIGH for 10 microseconds
+			_delay_us(10);								// let port be HIGH for 10 microseconds
 
 			DDRD &= ~(1 << PORTD2);		
 			//DDRD &= ~(OUT << sensorPorts[sensorNr]);		// set port as INPUT
@@ -143,7 +112,7 @@ void readSensor( uint16_t sensorValues[] ) {
 		case 'H':
 			DDRB |= (OUT << sensorPorts[sensorNr]);		// set port as OUTPUT
 			PORTB |= (1 << sensorPorts[sensorNr]);		// set port HIGH
-			_delay_ms(10);								// let port be HIGH for 10 microseconds
+			_delay_us(10);								// let port be HIGH for 10 microseconds
 			printf("portB\n");
 			DDRB &= (IN << sensorPorts[sensorNr]);		// set port as INPUT
 
@@ -158,7 +127,7 @@ void readSensor( uint16_t sensorValues[] ) {
 		case 'C':
 				DDRC |= (OUT << sensorPorts[sensorNr]);		// set port as OUTPUT
 				PORTC |= (1 << sensorPorts[sensorNr]);		// set port HIGH
-				_delay_ms(10);								// let port be HIGH for 10 microseconds
+				_delay_us(10);								// let port be HIGH for 10 microseconds
 
 				DDRC &= (IN << sensorPorts[sensorNr]);		// set port as INPUT
 
@@ -213,6 +182,8 @@ float calculateWeight( uint16_t sensorValues[] ) {
 	printf("avg %d    tmp %d\n ", (int) avgSensor, (int) tmpAllSensors);
 	avgSensor = ( (tmpAllSensors > 0) ? (float) avgSensor / tmpAllSensors: 0xFF);
 
+	setNewSpeed(getPID(sensorWeight[compare], 0));
+
 	return avgSensor;
 
 } // end calculateWeight
@@ -236,30 +207,32 @@ float getPID( float cur_position, float new_position) {
 }
 
 void setNewSpeed(float pid) {
-  float changeLeft = 0, changeRight = 0;
-  pid = pid * 100;
+  //float changeLeft = 0, changeRight = 0;
+
   printf("PID = %d\n", (int) pid);
-  pid = pid / 100;
+  if(pid > LeftF)
+	pid = LeftF;
+  if(-pid > RightF)
+	pid = -RightF;
+printf("PID2 = %d \n", (int) pid);
+  
   if (pid > 0) {
     // Turn left
-    changeLeft = (pid / 2);
-    changeRight = -(pid / 2);
-
-  }
-
-  if (pid <= 0) {
+  LeftF = LeftF - pid;
+  RightF = rightSpeed;
+  } else if (pid <= 0) {
     // turn right
-    changeLeft = (pid / 2);
-    changeRight = -(pid / 2);
-  }
+	RightF = RightF + pid;
+	LeftF = leftSpeed;
+}
+  printf("Left = %d Right = %d\n", LeftF, RightF);
+  
  // changeRight = changeRight * 100;
  // changeLeft = changeLeft * 100;
  // printf("%d    %d\n",(int) changeLeft, (int)changeRight);
-   motorAuto(changeLeft, changeRight);
   //printf("%f ", cur_position);
   //printFloat("Left", changeLeft);
   //printFloat("Right", changeRight);
-  printf("drive\n");
 
   // printf("position: %f, Left (%f), Right (%f)\n", cur_position, changeLeft, changeRight);
 }
