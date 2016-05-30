@@ -7,7 +7,8 @@
 #include "TWI_slave.h"
 #include "lineSensor.h"
 
-double count = 0;
+int count = 0;
+float error = 0;
 
 const uint8_t sensorPorts[NUM_SENSORS] = {IRPORT_1, IRPORT_2, IRPORT_3, IRPORT_4,/* IRPORT_5, IRPORT_6, IRPORT_7,*/ IRPORT_8};
 const char sensorRegister[NUM_SENSORS] = {IRREG_1, IRREG_2, IRREG_3, IRREG_4,/* IRREG_5, IRREG_6, IRREG_7,*/ IRREG_8};
@@ -25,9 +26,9 @@ float PID(float cur_value,float req_value);
 
 // vars
 uint16_t *lastValues;
-float pGain = 200;   //Proportional Gain
-float iGain =  0.2;  //Integral Gain
-float dGain =  120;  //Differential Gain
+//float pGain = 200;   //Proportional Gain
+//float iGain =  0.2;  //Integral Gain
+//float dGain =  120;  //Differential Gain
 
 int32_t eInteg = 0;  //Integral accumulator
 int32_t ePrev  =0;      //Previous Error
@@ -56,29 +57,17 @@ void readLineSensors() {
 		//printf("(%d) %d, ", sensorNr, sensorValues[sensorNr]);
 		sensorNr ++;
 	}
+	//printf("\n");
 	//printf("\nCompare:%d\n",sensorWeight[compare]);
 	
 	//printf("Test: %d\n",(float) -64 * (float) 0.5);
-	_delay_ms(50);
+	//_delay_ms(50);
 
-	pd = sensorWeight[compare] * Kp + Kd * (sensorWeight[compare]-oldcompare);
-	oldcompare = sensorWeight[compare];
+	//pd = sensorWeight[compare] * Kp + Kd * (sensorWeight[compare]-oldcompare);
+	//oldcompare = sensorWeight[compare];
 	//printf("pd: %d\n",(int)pd);
-	printf("%d",count);
-	count++;
-	if (pd < 0) {
-		LeftF = leftSpeed + pd;
-		RightF = rightSpeed;
 
-	} else if (pd > 0) {
-	LeftF = leftSpeed;
-	RightF = rightSpeed - pd;
 
-} else {
-	LeftF = leftSpeed;
-	RightF = rightSpeed;
-
-}
 		//printf("Left = %d Right = %d\n", LeftF, RightF);
 		
 		
@@ -88,7 +77,7 @@ void readLineSensors() {
 		//When the line is towards right of center then value tends to 8
 		//When the line is towards left of center then value tends to 1
 		//When line is in the exact center the the value is 4.5
-		//avgSensors = calculateWeight( sensorValues );
+		calculateWeight( sensorValues );
 		//setNewSpeed(getPID(sensorWeight[compare], 0));
 //		engineControl( avgSensors);
 
@@ -145,7 +134,7 @@ void readSensor( uint16_t sensorValues[] ) {
 			DDRB |= (OUT << sensorPorts[sensorNr]);		// set port as OUTPUT
 			PORTB |= (1 << sensorPorts[sensorNr]);		// set port HIGH
 			_delay_us(10);								// let port be HIGH for 10 microseconds
-			printf("portB\n");
+			//printf("portB\n");
 			DDRB &= (IN << sensorPorts[sensorNr]);		// set port as INPUT
 
 			// loop while INPUT is HIGH and count time
@@ -186,7 +175,7 @@ void readSensor( uint16_t sensorValues[] ) {
  * calculate
  * @param uint16_t sensorValues[]
  */
-float calculateWeight( uint16_t sensorValues[] ) {
+void calculateWeight( uint16_t sensorValues[] ) {
 
 	// get first highest value
 	uint8_t compare = 0;
@@ -207,7 +196,7 @@ float calculateWeight( uint16_t sensorValues[] ) {
 
 	for( int i = 0; i < NUM_SENSORS; i ++){
 
-		avgSensor += (float) sensorValues[i] * (i + 1);
+		avgSensor += (float) sensorValues[i] * sensorWeight[i];
 		tmpAllSensors += sensorValues[i];
 
 	}
@@ -216,7 +205,7 @@ float calculateWeight( uint16_t sensorValues[] ) {
 
 	setNewSpeed(getPID(sensorWeight[compare], 0));
 
-	return avgSensor;
+	//return avgSensor;
 
 } // end calculateWeight
 
@@ -226,13 +215,28 @@ float calculateWeight( uint16_t sensorValues[] ) {
 float getPID( float cur_position, float new_position) {
 
   float pid = 0.0;
-  float error = new_position - cur_position;
 
-  pid = (Kp * error) + (Ki * eInteg) + (Kd * (error - ePrev));
+	error = new_position - cur_position;
+
+  pid = (Kp * error) /*+ (Ki * eInteg) */+ (Kd * (cur_position - ePrev));
+
+  
 
   eInteg += error;
-  ePrev = error;
 
+   // if (count > 5){
+	//printf("Cur: %d, new: %d\n",(int)cur_position,(int)ePrev);
+	      ePrev = cur_position;
+	    count = 0;
+		
+
+   // }
+    count ++;
+
+	//printf("count: %d\n",count);
+
+  
+  //_delay_ms(150);
 
   return pid;
 
@@ -240,33 +244,24 @@ float getPID( float cur_position, float new_position) {
 
 void setNewSpeed(float pid) {
   //float changeLeft = 0, changeRight = 0;
+ // printf("pid: %d\n", (int)pid);
+  if (pid > 100) pid = 100;
+  if (pid < -100) pid = -100;
+	if (pid < 0) {
 
-  printf("PID = %d\n", (int) pid);
-  if(pid > LeftF)
-	pid = LeftF;
-  if(-pid > RightF)
-	pid = -RightF;
-printf("PID2 = %d \n", (int) pid);
-  
-  if (pid > 0) {
-    // Turn left
-  LeftF = LeftF - pid;
-  RightF = rightSpeed;
-  } else if (pid <= 0) {
-    // turn right
-	RightF = RightF + pid;
-	LeftF = leftSpeed;
-}
-  printf("Left = %d Right = %d\n", LeftF, RightF);
-  
- // changeRight = changeRight * 100;
- // changeLeft = changeLeft * 100;
- // printf("%d    %d\n",(int) changeLeft, (int)changeRight);
-  //printf("%f ", cur_position);
-  //printFloat("Left", changeLeft);
-  //printFloat("Right", changeRight);
+			LeftF = leftSpeed;
+			RightF = rightSpeed + pid;
 
-  // printf("position: %f, Left (%f), Right (%f)\n", cur_position, changeLeft, changeRight);
+		} else if (pid > 0) {
+			LeftF = leftSpeed - pid;
+			RightF = rightSpeed;
+
+		} else {
+		LeftF = leftSpeed;
+		RightF = rightSpeed;
+
+	}
+
 }
 
 

@@ -31,6 +31,8 @@
 #define SENSOR_REG1 'D'
 
 
+
+
 // Define IR registers
 #define IRREG_8 'D'
 //#define IRREG_7 'B'
@@ -54,9 +56,9 @@
 #define ENGINE_LEFT 0
 #define ENGINE_RIGHT 1
 
-#define Kp 0.4    // proportional
-#define Kd 0.2   // integral
-#define Ki 0.005  // differential
+#define Kp 0.7    // proportional
+#define Kd 0.3   // integral
+#define Ki 0.001  // differential
 
 
 
@@ -67,7 +69,7 @@ void setNewSpeed(float pid);
 void powerOnSensors();
 void powerOffSensors();
 void readSensor( uint16_t sensorValues[] );
-float calculateWeight( uint16_t sensorValues[] );
+void calculateWeight( uint16_t sensorValues[] );
 void engineControl( float avgSensor);
 void turnOnLED( uint8_t led);
 float PID(float cur_value,float req_value);
