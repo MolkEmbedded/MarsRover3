@@ -3,7 +3,7 @@
 void TWI_InitSlave(void);
 void pwmInit();
 void dataFunction(unsigned char);
-void motorAuto(float, float);
+void motorAuto(float);
 
 #define RightF OCR0A 
 #define RightR OCR0B 
@@ -15,5 +15,5 @@ void motorAuto(float, float);
 #define Motor2F OCR2A
 #define Motor2R OCR2B
 
-#define leftSpeed 140
-#define rightSpeed 130
+#define leftSpeed 100
+#define rightSpeed 100
