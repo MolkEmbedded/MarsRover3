@@ -35,7 +35,7 @@ int32_t ePrev  =0;      //Previous Error
 
 
 
-void readLineSensors() {
+float readLineSensors() {
 
 
 
@@ -48,8 +48,8 @@ void readLineSensors() {
 		readSensor( sensorValues );
 		
 	uint8_t compare = 0;
-	uint8_t oldcompare = 0;
-	float pd = 0.0;
+
+
 	int sensorNr = 0;
 	
 	while(sensorNr < NUM_SENSORS){
@@ -57,19 +57,7 @@ void readLineSensors() {
 		//printf("(%d) %d, ", sensorNr, sensorValues[sensorNr]);
 		sensorNr ++;
 	}
-	//printf("\n");
-	//printf("\nCompare:%d\n",sensorWeight[compare]);
 	
-	//printf("Test: %d\n",(float) -64 * (float) 0.5);
-	//_delay_ms(50);
-
-	//pd = sensorWeight[compare] * Kp + Kd * (sensorWeight[compare]-oldcompare);
-	//oldcompare = sensorWeight[compare];
-	//printf("pd: %d\n",(int)pd);
-
-
-		//printf("Left = %d Right = %d\n", LeftF, RightF);
-		
 		
 		// motorAuto(1.0, 1.0);
 		//Take current sensor reading
@@ -77,13 +65,8 @@ void readLineSensors() {
 		//When the line is towards right of center then value tends to 8
 		//When the line is towards left of center then value tends to 1
 		//When line is in the exact center the the value is 4.5
-		calculateWeight( sensorValues );
-		//setNewSpeed(getPID(sensorWeight[compare], 0));
-//		engineControl( avgSensors);
+		return calculateWeight( sensorValues );
 
-		//_delay_ms(300);
-//	}
-//	powerOffSensors();
 }
 
 
@@ -175,7 +158,7 @@ void readSensor( uint16_t sensorValues[] ) {
  * calculate
  * @param uint16_t sensorValues[]
  */
-void calculateWeight( uint16_t sensorValues[] ) {
+float calculateWeight( uint16_t sensorValues[] ) {
 
 	// get first highest value
 	uint8_t compare = 0;
@@ -203,7 +186,7 @@ void calculateWeight( uint16_t sensorValues[] ) {
 	//printf("avg %d    tmp %d\n ", (int) avgSensor, (int) tmpAllSensors);
 	avgSensor = ( (tmpAllSensors > 0) ? (float) avgSensor / tmpAllSensors: 0xFF);
 
-	setNewSpeed(getPID(sensorWeight[compare], 0));
+	return getPID(sensorWeight[compare], 0);
 
 	//return avgSensor;
 
@@ -239,28 +222,6 @@ float getPID( float cur_position, float new_position) {
   //_delay_ms(150);
 
   return pid;
-
-}
-
-void setNewSpeed(float pid) {
-  //float changeLeft = 0, changeRight = 0;
- // printf("pid: %d\n", (int)pid);
-  if (pid > 100) pid = 100;
-  if (pid < -100) pid = -100;
-	if (pid < 0) {
-
-			LeftF = leftSpeed;
-			RightF = rightSpeed + pid;
-
-		} else if (pid > 0) {
-			LeftF = leftSpeed - pid;
-			RightF = rightSpeed;
-
-		} else {
-		LeftF = leftSpeed;
-		RightF = rightSpeed;
-
-	}
 
 }
 

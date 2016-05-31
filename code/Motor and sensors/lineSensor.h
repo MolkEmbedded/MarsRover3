@@ -63,17 +63,16 @@
 
 
 // functions
-void readLineSensors();
+float readLineSensors();
 float getPID( float cur_position, float new_position);
-void setNewSpeed(float pid);
+
 void powerOnSensors();
 void powerOffSensors();
 void readSensor( uint16_t sensorValues[] );
-void calculateWeight( uint16_t sensorValues[] );
-void engineControl( float avgSensor);
-void turnOnLED( uint8_t led);
+float calculateWeight( uint16_t sensorValues[] );
+
 float PID(float cur_value,float req_value);
-void motorAuto(float, float);
+void motorAuto(float);
 
 
 
