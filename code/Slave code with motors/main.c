@@ -31,32 +31,19 @@ int main() {
 	TWI_InitSlave(); // Function to initialize slave
 	//sei();
 
-	printf("start\n");
-
+	printf("start1\n");
+	//powerOnSensors();
+	printf("start2\n");
 	while(0){
 		printf("loop\n");
 		while (!(TWCR & (1<<TWINT)));
 	}
 	while(1){
-	float p = 0;
-	//printf("start3\n");
-	p = readLineSensors();
-	
-
+	printf("start3\n");
+	readLineSensors();
+	//motorAuto(0.1, 0.1);
+	/*
 		 distance_in_cm=read_sonar();
-
-		 _delay_ms(10);
-
-		 printf("%d\n",distance_in_cm);
-
-
-		 if (distance_in_cm > 10 || distance_in_cm < 0 ) {
-				motorAuto(p);
-				}else{
-				RightF = 0;
-				LeftF = 0;
-				}
-		 /*
 		 if (distance_in_cm == TRIG_ERROR)
 		 {
 			 puts("Error!");

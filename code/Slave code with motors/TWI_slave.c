@@ -13,25 +13,23 @@ void TWI_InitSlave(void){
 	TWAR=0x40;
 	TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE)|(1<<TWINT);	
 }
-void motorAuto(float pid){
+void motorAuto(float l, float r){
 
-if (pid > 100) pid = 100;
-if (pid < -100) pid = -100;
-if (pid < 0) {
 
-	LeftF = leftSpeed;
-	RightF = rightSpeed + pid;
 
-	} else if (pid > 0) {
-	LeftF = leftSpeed - pid;
-	RightF = rightSpeed;
 
-	} else {
-	LeftF = leftSpeed;
-	RightF = rightSpeed;
-
-}
-
+/*
+	Motor1F = 100;
+	Motor2F = 100;
+	Motor1F = 100 * (1 + (l + l));
+	Motor2F = 100 * (1 + (r + r));
+//	Motor1F = 80;
+//	Motor2F = 100;
+	Motor1R = 0;
+	Motor2R = 0;
+	_delay_ms(1000);
+	*/
+	printf("left = %d ,  right = %d\n",Motor2F, Motor1F);
 }
 void dataFunction(unsigned char data){
 
