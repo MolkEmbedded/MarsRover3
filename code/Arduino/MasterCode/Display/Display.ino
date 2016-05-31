@@ -1,20 +1,37 @@
+
 #define F_CPU 16000000UL
 #include <stdio.h>
 #include<avr/io.h>
 #include<inttypes.h>
 #include<avr/interrupt.h>
 #include <compat/twi.h>
-#include <IRremote.h>
-#include <LiquidCrystal_I2C.h>
-#include <Wire.h> 
+#include <IRremote.h> 
+#include <LiquidCrystal.h>
+/*
+  The circuit:
+ * LCD RS pin to digital pin 12
+ * LCD Enable pin to digital pin 11
+ * LCD D4 pin to digital pin 5
+ * LCD D5 pin to digital pin 4
+ * LCD D6 pin to digital pin 3
+ * LCD D7 pin to digital pin 2 
+ * LCD R/W pin to ground
+ * LCD VSS pin to ground
+ * LCD VCC pin to 5V
+ * 10K resistor:
+ * ends to +5V and ground
+ * wiper to LCD VO pin (pin 3)
+ * LCD LED_A pin to 5V
+ * LCD LED_C pin to ground
+*/
 
-LiquidCrystal_I2C lcd(0x27,16,2); 
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
-#define Cancel 11
-#define NavDown 9
-#define NavUp 8
+#define Cancel 7
+#define NavDown 8
+#define NavUp 9
 #define Enter 10
-
+#define BZR 6 //Buzzer, change pin.
 
 void TWI_start(void);
 void TWI_init_master(void);
@@ -35,7 +52,7 @@ byte settingMenuPage = 1;
 byte settingMenuPageOld = 1;
 byte settingMenuTotal = 3;
 
-int RECV_PIN = 12;
+int RECV_PIN = 1;//12
 int val1 = 0;
 int val = 0;
 
@@ -45,12 +62,12 @@ decode_results results;
 
 void setup(){
   Serial.begin(9600);
-  lcd.begin();
-  lcd.backlight();
+  lcd.begin(16, 2);
 
+  pinMode(BZR, OUTPUT); //Sets BZRpin to OUTPUT
   pinMode(13, OUTPUT);
   irrecv.enableIRIn();
-  //TWI_init_master();
+ // TWI_init_master();
   
   startSequence();
 
@@ -64,7 +81,6 @@ void loop(){
     MainMenuBtn();
     
     if(btn_push == 'S'){//enter selected menu
-   //     WaitBtnRelease();
         switch (mainMenuPage){
             case 1:
               Manual();
@@ -83,7 +99,7 @@ void loop(){
 
 /***Funktioner***/
 void startSequence(){
-  lcd.clear();
+
   lcd.setCursor(2, 0);
   lcd.print("IS Robotics");
   lcd.setCursor(0, 1);
@@ -102,6 +118,7 @@ void Manual(){
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("Manual Mode");
+    BuzzerTone();
     
     while(ReadKeypad()!= 'C'){
       val = 0;
@@ -124,12 +141,16 @@ void Autonom(){
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("Autonom Mode");
+    BuzzerTone();
     
     while(ReadKeypad()!= 'C'){
+      delay(5000);
+      //TWI_start(); // Function to send start condition
         //Gör något skoj här
     }
 }
-void Settings(){  
+void Settings(){ 
+  BuzzerTone(); 
 
     SettingMenuDisplay();
        
@@ -161,6 +182,7 @@ void Calibrate(){
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("Calibration Mode");
+    BuzzerTone();
     
     while(ReadKeypad()!= 'C'){
         //Gör något skoj här
@@ -170,10 +192,14 @@ void Calibrate(){
 void LightOn(){  
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("LightOn");
+    lcd.print("LightBlink");
+    BuzzerTone();
     
     while(ReadKeypad()!= 'C'){
-        //Gör något skoj här
+        digitalWrite(13, HIGH);
+        delay(1000);
+        digitalWrite(13, LOW);
+        delay(1000);
     }
 }
 
@@ -181,12 +207,23 @@ void TEST(){
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("TEST");
+    BuzzerTone();
     
     while(ReadKeypad()!= 'C'){
         //Gör något skoj här
     }
 }
 
+
+void BuzzerTone(){
+    for (int i=0; i<500; i++) {  // generate a 1KHz tone for 1/2 second
+         digitalWrite(BZR, HIGH);
+         delayMicroseconds(500);
+         digitalWrite(BZR, LOW);
+         delayMicroseconds(500);
+ }
+  
+  }
 
 void MainMenuDisplay(){
     lcd.clear();
@@ -293,7 +330,7 @@ int IrFunction(void){
     return 0;
 
 }
-/*
+
 ISR(TWI_vect){
   switch (TWSR)
   {
@@ -332,5 +369,4 @@ void TWI_start(void){
   TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN)|(1<<TWIE);
   while(!(TWCR & (1<<TWINT))); // Wait till start condition is transmitted
 }
-*/
 
