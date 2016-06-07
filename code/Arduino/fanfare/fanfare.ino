@@ -20,6 +20,7 @@
 #define NOTE_C6  1047
 
 #define SONG_LENGTH 14
+#define BUZZERPORT 6
 
 // notes in the melody:
 int melody[] = {
@@ -63,6 +64,19 @@ void playObstacleMelody() {
     delay(pauseBetweenNotes);
     // stop the tone playing:
     noTone(2);
+  }
+}
+
+int startMelody[] = {NOTE_C5,0, NOTE_C5, 0, NOTE_C5, 0, NOTE_C5};
+int startDuration[] = {8,8,8,8,8,8,2};
+void playStart(){
+  for( uint8_t thisNote = 0; thisNote < 2; thisNote++){
+    int noteDuration = 1000 / startDuration[thisNote];
+    tone(BUZZERPORT, startMelody[thisNote], noteDuration);
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(BUZZERPORT);
   }
 }
 void setup() {
