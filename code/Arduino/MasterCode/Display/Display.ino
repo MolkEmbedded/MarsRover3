@@ -1,3 +1,21 @@
+#define NOTE_G4  392
+#define NOTE_GS4 415
+#define NOTE_A4  440
+#define NOTE_AS4 466
+#define NOTE_B4  494
+#define NOTE_C5  523
+#define NOTE_CS5 554
+#define NOTE_D5  587
+#define NOTE_DS5 622
+#define NOTE_E5  659
+#define NOTE_F5  698
+#define NOTE_FS5 740
+#define NOTE_G5  784
+#define NOTE_GS5 831
+#define NOTE_A5  880
+#define NOTE_AS5 932
+#define NOTE_B5  988
+#define NOTE_C6  1047
 
 #define F_CPU 16000000UL
 #include <stdio.h>
@@ -31,13 +49,31 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 #define NavDown 8
 #define NavUp 9
 #define Enter 10
-#define BZR 1 //Buzzer, change pin.
+#define BZR 13 //Buzzer, change pin.
+//#define RECV_PIN 6
 
 void TWI_start(void);
 void TWI_init_master(void);
 int IrFunction(void);
+void playFanfare(void);
+void playObstacleMelody(void);
+void playStart(void);
 
 ISR(TWI_vect);
+
+// notes in the melody:
+int melody[] = {
+  NOTE_C5, NOTE_C5, NOTE_C5, NOTE_G5, NOTE_C5, NOTE_C5, NOTE_C5, NOTE_G5,NOTE_G5, NOTE_G5, NOTE_G5, NOTE_C5,NOTE_C5, NOTE_G5
+};
+
+// note durations: 4 = quarter note, 8 = eighth note, etc.:
+int noteDurations[] = {
+  8, 16, 16, 4, 8, 16, 16, 4, 8, 16, 16, 8, 8, 4
+};
+int obstacleNoteDuration[] = {8,8};
+int obstacleMelody[] = {NOTE_G5, NOTE_C5};
+int startMelody[] = {NOTE_C5,0, NOTE_C5, 0, NOTE_C5, 0, NOTE_G5};
+int startDuration[] = {8,8,8,8,8,8,2};
 
 unsigned char address = 0x40, read = 1, write = 0;
 unsigned char data, write_data = 0x01, recv_data;
@@ -130,15 +166,16 @@ void Manual() {
     Serial.println(val);
     delay(100);
    // digitalWrite(13, HIGH);
-    Serial.println("HEJ");
+   // Serial.println("1");
 
-    if (irrecv.decode(&results)) {
+   if (irrecv.decode(&results)) {
       irrecv.resume();
       val = 1;
     }
     if (val == 1) {
   //    digitalWrite(13, LOW);
-      sei();
+  Serial.println("HEJ");
+    //  sei();
       TWI_start(); // Function to send start condition
     }
     /*
@@ -149,8 +186,8 @@ void Manual() {
      Serial.println("HEJ");
       TWI_start(); // Function to send start condition
      // modeState = 1;
-      }   */
-
+      }   
+*/
   }
 }
 
@@ -160,15 +197,12 @@ void Autonom() {
   lcd.print("Autonom Mode");
   lcd.setCursor(0, 1);
   lcd.print("GOGOGO!!!");
-  BuzzerTone();
+//  BuzzerTone();
 
   while (ReadKeypad() != 'C') {
-    while (modeState == 0) {
-      mode = 7;
-      TWI_start();
-      modeState = 1;
+    for( int i = 0; i < 1; i++); 
+      playStart();
     }
-  }
 }
 void Settings() {
   BuzzerTone();
@@ -249,7 +283,7 @@ void BuzzerTone() {
 void MainMenuDisplay() {
   lcd.clear();
   lcd.setCursor(0, 0);
-  digitalWrite(13, LOW);
+  //digitalWrite(13, LOW);
   switch (mainMenuPage) {
     case 1:
       lcd.print("1. Manuell");
@@ -399,6 +433,45 @@ void TWI_init_master(void) { // Function to initialize master
 void TWI_start(void) {
   // Clear TWI interrupt flag, Put start condition on SDA, Enable TWI
   TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN) | (1 << TWIE);
-  while (!(TWCR & (1 << TWINT))); // Wait till start condition is transmitted
+ // while (!(TWCR & (1 << TWINT))); // Wait till start condition is transmitted
+}
+void playStart(){
+  for( uint8_t thisNote = 0; thisNote < 7; thisNote++){
+    Serial.println("HEJ");
+    int noteDuration = 2000 / startDuration[thisNote];
+    tone(BZR, startMelody[thisNote], noteDuration);
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(BZR);
+  }
+}
+void playObstacleMelody() {
+  for( uint8_t thisNote = 0; thisNote < 2; thisNote++){
+    int noteDuration = 1000 / obstacleNoteDuration[thisNote];
+    tone(BZR, obstacleMelody[thisNote], noteDuration);
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(BZR);
+  }
 }
 
+void playFanfare(){
+  // iterate over the notes of the melody:
+  for (int thisNote = 0; thisNote < 14; thisNote++) {
+
+    // to calculate the note duration, take one second
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 2000 / noteDurations[thisNote];
+    tone(BZR, melody[thisNote], noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(BZR);
+  }
+}

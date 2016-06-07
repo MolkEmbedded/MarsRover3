@@ -20,7 +20,7 @@
 #define NOTE_C6  1047
 
 #define SONG_LENGTH 14
-#define BUZZERPORT 6
+#define BUZZERPORT 12
 
 // notes in the melody:
 int melody[] = {
@@ -39,15 +39,15 @@ void playFanfare(){
     // to calculate the note duration, take one second
     // divided by the note type.
     //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
-    int noteDuration = 1000 / noteDurations[thisNote];
-    tone(SONG_LENGTH, melody[thisNote], noteDuration);
+    int noteDuration = 2000 / noteDurations[thisNote];
+    tone(BUZZERPORT, melody[thisNote], noteDuration);
 
     // to distinguish the notes, set a minimum time between them.
     // the note's duration + 30% seems to work well:
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
     // stop the tone playing:
-    noTone(SONG_LENGTH);
+    noTone(BUZZERPORT);
   }
 }
 
@@ -59,19 +59,20 @@ int obstacleMelody[] = {NOTE_G5, NOTE_C5};
 void playObstacleMelody() {
   for( uint8_t thisNote = 0; thisNote < 2; thisNote++){
     int noteDuration = 1000 / obstacleNoteDuration[thisNote];
-    tone(2, obstacleMelody[thisNote], noteDuration);
+    tone(BUZZERPORT, obstacleMelody[thisNote], noteDuration);
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
     // stop the tone playing:
-    noTone(2);
+    noTone(BUZZERPORT);
   }
 }
 
-int startMelody[] = {NOTE_C5,0, NOTE_C5, 0, NOTE_C5, 0, NOTE_C5};
+int startMelody[] = {NOTE_C5,0, NOTE_C5, 0, NOTE_C5, 0, NOTE_G5};
 int startDuration[] = {8,8,8,8,8,8,2};
 void playStart(){
-  for( uint8_t thisNote = 0; thisNote < 2; thisNote++){
-    int noteDuration = 1000 / startDuration[thisNote];
+  for( uint8_t thisNote = 0; thisNote < 7; thisNote++){
+    Serial.println("HEJ");
+    int noteDuration = 2000 / startDuration[thisNote];
     tone(BUZZERPORT, startMelody[thisNote], noteDuration);
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
@@ -81,7 +82,13 @@ void playStart(){
 }
 void setup() {
   // put your setup code here, to run once:
-
+  Serial.begin(9600);
+  pinMode(BUZZERPORT, OUTPUT);
+playStart();
+delay(1000);
+playFanfare();
+delay(1000);
+playObstacleMelody();
 }
 
 void loop() {
