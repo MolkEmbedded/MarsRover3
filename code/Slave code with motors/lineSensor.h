@@ -31,6 +31,8 @@
 #define SENSOR_REG1 'D'
 
 
+
+
 // Define IR registers
 #define IRREG_8 'D'
 //#define IRREG_7 'B'
@@ -54,22 +56,23 @@
 #define ENGINE_LEFT 0
 #define ENGINE_RIGHT 1
 
-#define Kp 0.1    // proportional
-#define Kd 0.01   // integral
-#define Ki 0.005  // differential
+#define Kp 0.75    // proportional
+#define Kd 0.3   // integral
+#define Ki 0.001  // differential
+
+
 
 // functions
-void readLineSensors();
+float readLineSensors();
 float getPID( float cur_position, float new_position);
-void setNewSpeed(float pid);
+
 void powerOnSensors();
 void powerOffSensors();
 void readSensor( uint16_t sensorValues[] );
 float calculateWeight( uint16_t sensorValues[] );
-void engineControl( float avgSensor);
-void turnOnLED( uint8_t led);
+
 float PID(float cur_value,float req_value);
-void motorAuto(float, float);
+void motorAuto(float);
 
 
 

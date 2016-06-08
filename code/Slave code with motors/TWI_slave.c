@@ -13,68 +13,70 @@ void TWI_InitSlave(void){
 	TWAR=0x40;
 	TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE)|(1<<TWINT);	
 }
-void motorAuto(float l, float r){
+void motorAuto(float pid){
 
+if (pid > 100) pid = 100;
+if (pid < -100) pid = -100;
+if (pid < 0) {
 
+	LeftF = leftSpeed;
+	RightF = rightSpeed + pid;
 
+	} else if (pid > 0) {
+	LeftF = leftSpeed - pid;
+	RightF = rightSpeed;
 
-/*
-	Motor1F = 100;
-	Motor2F = 100;
-	Motor1F = 100 * (1 + (l + l));
-	Motor2F = 100 * (1 + (r + r));
-//	Motor1F = 80;
-//	Motor2F = 100;
-	Motor1R = 0;
-	Motor2R = 0;
-	_delay_ms(1000);
-	*/
-	printf("left = %d ,  right = %d\n",Motor2F, Motor1F);
+	} else {
+	LeftF = leftSpeed;
+	RightF = rightSpeed;
+
+}
+
 }
 void dataFunction(unsigned char data){
 
-	printf("DATA = %d\n", data);
+	//printf("DATA = %d\n", data);
 	switch (data){
 		case 1:
-			if(Motor1F < 216 && Motor2F < 216){
-				if (Motor1F == Motor2F){
-					Motor1F += 40;
-					Motor2F += 40;
+			if(RightF < 216 && LeftF < 216){
+				if (RightF == LeftF){
+					RightF += 40;
+					LeftF += 40;
 			}
 				else {
-					Motor1F = 80;
-					Motor2F = 80;
+					RightF = 80;
+					LeftF = 80;
 			}
 			printf("FRAMAT\n");
-			printf("%d\n%d\n", Motor1F, Motor2F);
+			printf("left = %d  right = %d\n", LeftF, RightF);
 		}	
 			break;	
 		case 2:
-			Motor1F = 0;
-			Motor2F = 0;
-			Motor1R += 40;
-			Motor2R += 40;
+			RightF = 0;
+			LeftF = 0;
+			RightR += 40;
+			LeftR += 40;
 			printf("BAKAT\n");
 			break;
 		case 3:
-			Motor1R = 0;
-			Motor2R = 0;
-			Motor1F = 80;
-			Motor2F = 0;
+			RightR = 0;
+			LeftR = 0;
+			LeftF = 115;
+			RightF = 0;
 			printf("HOGER\n");
 			break;
 		case 4:
-			Motor1R = 0;
-			Motor2R = 0;
-			Motor1F = 0;
-			Motor2F = 80;
+			RightR = 0;
+			LeftR = 0;
+			LeftF = 0;
+			RightF = 115;
 			printf("VANSTER\n");
 			break;
 		case 5:
-			Motor1F = 0;
-			Motor2F = 0;
-			Motor1R = 0;
-			Motor2R = 0;
+			RightF = 0;
+			LeftF = 0;
+			RightR = 0;
+			LeftR = 0;
 			printf("STOP\n");
 			break;
 		default:
