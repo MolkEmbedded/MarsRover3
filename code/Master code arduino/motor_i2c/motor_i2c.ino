@@ -109,8 +109,6 @@ int IrFunction(void){
     return MANUAL;
   else if (results.value == 0x469C || results.value == 0x1469C){
     start = 1;
-    Serial.println("Startplay");
-    playStart();
     return AUTONOM;
   }
   else 
@@ -156,7 +154,6 @@ void TWI_init_master(void){ // Function to initialize master
 void TWI_start(void){
   // Clear TWI interrupt flag, Put start condition on SDA, Enable TWI
   TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN)|(1<<TWIE);
- // while(!(TWCR & (1<<TWINT))); // Wait till start condition is transmitted
 }
 
 void playStart(){
@@ -184,15 +181,8 @@ void playObstacleMelody() {
 void playFanfare(){
   // iterate over the notes of the melody:
   for (int thisNote = 0; thisNote < 14; thisNote++) {
-
-    // to calculate the note duration, take one second
-    // divided by the note type.
-    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
     int noteDuration = 2000 / noteDurations[thisNote];
     tone(BZR, melody[thisNote], noteDuration);
-
-    // to distinguish the notes, set a minimum time between them.
-    // the note's duration + 30% seems to work well:
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
     // stop the tone playing:
