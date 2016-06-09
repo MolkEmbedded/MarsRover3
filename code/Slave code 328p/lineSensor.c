@@ -42,22 +42,8 @@ float readLineSensors() {
 	}
 	
 	if (sensorValues[0] > 1500 && sensorValues[1] > 1500 && sensorValues[2] > 1500 && sensorValues[3] > 1500 && sensorValues[4] > 1500){
-		LeftF = 200;
-		LeftR = 0;
-		RightF = 0;
-		RightR = 200;
-		_delay_ms(2000);
-		LeftF = 0;
-		LeftR = 200;
-		RightF = 200;
-		RightR = 0;
-		_delay_ms(2000);
-		LeftF = 0;
-		LeftR = 0;
-		RightF = 0;
-		RightR = 0;
-		_delay_ms(2500);
-		for(; ; );
+		motorDance();
+		
 	}
 
 		//Take current sensor reading

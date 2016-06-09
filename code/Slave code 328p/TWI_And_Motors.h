@@ -4,6 +4,7 @@ void TWI_InitSlave(void);
 void pwmInit();
 void dataFunction(unsigned char);
 void motorAuto(float);
+void motorDance(void);
 
 #define RightF OCR0A 
 #define RightR OCR0B 
