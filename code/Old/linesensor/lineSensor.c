@@ -9,6 +9,7 @@
 
 // functions
 /*
+ extra kommentar
 void powerOnSensors();
 void powerOffSensors();
 void readSensor( uint16_t sensorValues[] );
